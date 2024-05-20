@@ -2,9 +2,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:mynotes/constants/routes.dart';
+import 'package:mynotes/utilities/show_error_dialog.dart';
 import 'dart:developer' as devtools show log;
-
-import 'package:mynotes/views/verify_email_view.dart';
 
 class RegisterView extends StatefulWidget {
   const RegisterView({super.key});
@@ -65,20 +64,31 @@ class _RegisterViewState extends State<RegisterView> {
                             .createUserWithEmailAndPassword(
                                 email: email, password: password);
                         devtools.log('create user: $userCredential');
-                        Navigator.of(context).pushNamedAndRemoveUntil(
+                        // send verification
+                        final user = await FirebaseAuth.instance.currentUser;
+                        user?.sendEmailVerification();
+                        Navigator.of(context).pushNamed(
                           verifyRoute,
-                          (route) => false,
                         );
                       } on FirebaseAuthException catch (e) {
                         if (e.code == 'weak-password') {
-                          devtools.log('Weak Password');
+                          await showErrorDialog(
+                            context,
+                            'Weak Password',
+                          );
                         } else if (e.code == 'email-already-in-use') {
-                          devtools.log('Email already in use');
+                          await showErrorDialog(
+                            context,
+                            'Email already in use',
+                          );
                         } else if (e.code == 'invalid-email') {
-                          devtools.log('invalid email address');
+                          await showErrorDialog(
+                            context,
+                            'Invalid Email address',
+                          );
                         }
                       } catch (e) {
-                        devtools.log('create user error: $e');
+                        await showErrorDialog(context, 'Error: $e');
                       }
                     },
                     child: const Text('Register'),
