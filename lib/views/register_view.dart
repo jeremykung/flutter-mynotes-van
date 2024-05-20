@@ -1,7 +1,10 @@
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:mynotes/constants/routes.dart';
+import 'dart:developer' as devtools show log;
+
+import 'package:mynotes/views/verify_email_view.dart';
 
 class RegisterView extends StatefulWidget {
   const RegisterView({super.key});
@@ -61,17 +64,21 @@ class _RegisterViewState extends State<RegisterView> {
                         final userCredential = await FirebaseAuth.instance
                             .createUserWithEmailAndPassword(
                                 email: email, password: password);
-                        print('create user: $userCredential');
+                        devtools.log('create user: $userCredential');
+                        Navigator.of(context).pushNamedAndRemoveUntil(
+                          verifyRoute,
+                          (route) => false,
+                        );
                       } on FirebaseAuthException catch (e) {
                         if (e.code == 'weak-password') {
-                          print('Weak Password');
+                          devtools.log('Weak Password');
                         } else if (e.code == 'email-already-in-use') {
-                          print('Email already in use');
+                          devtools.log('Email already in use');
                         } else if (e.code == 'invalid-email') {
-                          print('invalid email address');
+                          devtools.log('invalid email address');
                         }
                       } catch (e) {
-                        print('create user error: $e');
+                        devtools.log('create user error: $e');
                       }
                     },
                     child: const Text('Register'),
@@ -79,7 +86,7 @@ class _RegisterViewState extends State<RegisterView> {
                   TextButton(
                     onPressed: () {
                       Navigator.of(context).pushNamedAndRemoveUntil(
-                        '/login',
+                        loginRoute,
                         (route) => false,
                       );
                     },

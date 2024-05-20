@@ -1,6 +1,9 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'dart:developer' as devtools show log;
+
+import 'package:mynotes/constants/routes.dart';
 
 class LoginView extends StatefulWidget {
   const LoginView({super.key});
@@ -60,16 +63,20 @@ class _LoginViewState extends State<LoginView> {
                         final userCredential = await FirebaseAuth.instance
                             .signInWithEmailAndPassword(
                                 email: email, password: password);
-                        print('login credentials: $userCredential');
+                        devtools.log('login credentials: $userCredential');
+                        Navigator.of(context).pushNamedAndRemoveUntil(
+                          notesRoute,
+                          (route) => false,
+                        );
                       } on FirebaseAuthException catch (e) {
-                        print('firebase auth error: ${e.code}');
+                        devtools.log('firebase auth error: ${e.code}');
                         if (e.code == 'invalid-credential') {
-                          print('user not found');
+                          devtools.log('user not found');
                         } else if (e.code == 'invalid-email') {
-                          print('please enter a valid email address');
+                          devtools.log('please enter a valid email address');
                         }
                       } catch (e) {
-                        print('login error: $e');
+                        devtools.log('login error: $e');
                       }
                     },
                     child: const Text('Login'),
@@ -77,7 +84,7 @@ class _LoginViewState extends State<LoginView> {
                   TextButton(
                     onPressed: () {
                       Navigator.of(context).pushNamedAndRemoveUntil(
-                        '/register',
+                        registerRoute,
                         (route) => false,
                       );
                     },
