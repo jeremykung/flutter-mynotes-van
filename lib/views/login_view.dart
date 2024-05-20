@@ -65,10 +65,15 @@ class _LoginViewState extends State<LoginView> {
                             .signInWithEmailAndPassword(
                                 email: email, password: password);
                         devtools.log('login credentials: $userCredential');
-                        Navigator.of(context).pushNamedAndRemoveUntil(
-                          notesRoute,
-                          (route) => false,
-                        );
+                        final user = FirebaseAuth.instance.currentUser;
+                        if (user?.emailVerified ?? false) {
+                          Navigator.of(context).pushNamedAndRemoveUntil(
+                            notesRoute,
+                            (route) => false,
+                          );
+                        } else {
+                          Navigator.of(context).pushNamed(verifyRoute);
+                        }
                       } on FirebaseAuthException catch (e) {
                         devtools.log('firebase auth error: ${e.code}');
                         if (e.code == 'invalid-credential') {
